@@ -108,7 +108,7 @@ if (Test-Command "npm") {
     npm run build
     Pop-Location
 } else {
-    Write-Warning "npm not found — skipping UI build. API-only mode will work."
+    Write-Warning "npm not found - skipping UI build. API-only mode will work."
 }
 
 # --- Optional model pull ---
@@ -119,26 +119,31 @@ if (Test-Command "ollama") {
     }
 }
 
-# --- Launcher ---
+# --- Launcher (repo already ships start.ps1; rewrite only if missing) ---
 $launcher = Join-Path $Root "start.ps1"
-@"
-`$Root = Split-Path -Parent `$MyInvocation.MyCommand.Path
-`$py = Join-Path `$Root "backend\.venv\Scripts\python.exe"
-Set-Location (Join-Path `$Root "backend")
-Write-Host "Starting FreeAgent IDE at http://127.0.0.1:8765" -ForegroundColor Cyan
-& `$py -m uvicorn app.main:app --host 127.0.0.1 --port 8765
-"@ | Set-Content -Path $launcher -Encoding UTF8
+if (-not (Test-Path $launcher)) {
+    $launcherLines = @(
+        '$Root = if ($PSScriptRoot) { $PSScriptRoot } else { Split-Path -Parent $MyInvocation.MyCommand.Path }'
+        '$py = Join-Path $Root "backend\.venv\Scripts\python.exe"'
+        'if (-not (Test-Path $py)) { Write-Host "Virtualenv missing. Run .\install.ps1 first." -ForegroundColor Red; exit 1 }'
+        'Set-Location (Join-Path $Root "backend")'
+        'Write-Host "Starting FreeAgent IDE at http://127.0.0.1:8765" -ForegroundColor Cyan'
+        'Write-Host "Press Ctrl+C to stop."'
+        '& $py -m uvicorn app.main:app --host 127.0.0.1 --port 8765'
+    )
+    Set-Content -Path $launcher -Value $launcherLines -Encoding UTF8
+}
 
 # Desktop shortcut
 try {
-    $desktop = [Environment]::GetFolderPath("Desktop")
-    $shortcutPath = Join-Path $desktop "FreeAgent IDE.lnk"
+    $desktop = [Environment]::GetFolderPath('Desktop')
+    $shortcutPath = Join-Path $desktop 'FreeAgent IDE.lnk'
     $wsh = New-Object -ComObject WScript.Shell
     $sc = $wsh.CreateShortcut($shortcutPath)
-    $sc.TargetPath = "powershell.exe"
+    $sc.TargetPath = 'powershell.exe'
     $sc.Arguments = "-NoExit -ExecutionPolicy Bypass -File `"$launcher`""
     $sc.WorkingDirectory = $Root
-    $sc.Description = "FreeAgent IDE"
+    $sc.Description = 'FreeAgent IDE'
     $sc.Save()
     Write-Host "Desktop shortcut created."
 } catch {
