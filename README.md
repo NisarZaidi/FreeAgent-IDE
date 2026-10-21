@@ -20,7 +20,7 @@ Multiple specialized AI agents (Planner, Coder, Reviewer, Tester) collaborate on
 ### Windows (PowerShell)
 
 ```powershell
-git clone https://github.com/<you>/FreeAgent-IDE.git
+git clone https://github.com/NisarZaidi/FreeAgent-IDE.git
 cd FreeAgent-IDE
 .\install.ps1
 ```
@@ -28,14 +28,12 @@ cd FreeAgent-IDE
 ### Linux
 
 ```bash
-git clone https://github.com/<you>/FreeAgent-IDE.git
+git clone https://github.com/NisarZaidi/FreeAgent-IDE.git
 cd FreeAgent-IDE
 bash install.sh
 ```
 
 Then open **http://127.0.0.1:8765**
-
-> Replace `<you>` with your GitHub username when published. Until then, clone this repo locally and run the installer from the project root.
 
 ## Hardware recommendations
 
